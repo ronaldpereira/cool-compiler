@@ -215,7 +215,7 @@ void dump_cool_token(ostream& out, int lineno, int token, YYSTYPE yylval)
 //
 // Decstations don't have strdup in the library.
 //
-char *strdup(const char *s) throw()
+char *strdup(const char *s)
 {
   char *news;
 
