@@ -1,12 +1,20 @@
 # Lexer constructor
 
-all: lexer
+all: clean lexer full
 
 lex.yy.cc: cool.flex
 	flex -o $@ $? 
 
 lexer: lex.yy.cc
 	g++ *.cc -o $@
+
+ready: clean lexerReady full
+
+lexReady.yy.cc: coolReady.flex
+	flex -o $@ $? 
+
+lexerReady: lexReady.yy.cc
+	g++ *.cc -o lexer
 
 # Lexer execution
 
@@ -25,7 +33,7 @@ compare:
 # Utilities
 
 clean:
-	rm -f lex.yy.cc
-	rm -f lexer
+	rm -f lex*.yy.cc
+	rm -f lexer*
 	rm -f examples/*.output
 	rm -f examples/*.txt
