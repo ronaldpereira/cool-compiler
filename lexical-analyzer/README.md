@@ -14,4 +14,4 @@ To execute the lexer with a cool program:
 
 Execute example:
 
-`$ ./lexer myCool.cool > myOutput.cool`
+`$ ./lexer myCool.cool > myOutput.cl.out`
