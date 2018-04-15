@@ -66,7 +66,13 @@ int null_character_err() {
   return -1;
 }
 
-char * backslash_common() {
+int escaped_null_character_err() {
+  yylval.error_msg = "String contains escaped null character";
+  string_error = true;
+  return -1;
+}
+
+char *backslash_common() {
   char *c = &yytext[1];
   if (*c == '\n') {
     curr_lineno++;
@@ -213,8 +219,14 @@ QUOTES          \"
     return (ERROR);
   }
 }
+
 <STRING>{NULLCH} {
   null_character_err();
+  return (ERROR);
+}
+
+<STRING>{BACKSLASH}{NULLCH} {
+  escaped_null_character_err();
   return (ERROR);
 }
 
@@ -222,11 +234,13 @@ QUOTES          \"
   BEGIN(INITIAL);
   curr_lineno++;
   if (!string_error) {
+    string_error = true;
     yylval.error_msg = "Unterminated string constant";
     return (ERROR);
   }
 }
-<STRING>{BACKSLASH}(.|{NEWLINE}) {
+
+<STRING>{BACKSLASH}{1,2}(.|{NEWLINE}) {
   char *c = backslash_common();
   int rc;
 
@@ -243,8 +257,13 @@ QUOTES          \"
     case 'f':
       rc = str_write("\f", 1);
       break;
-    case '\0':
+    case '0':
       rc = null_character_err();
+      break;
+    case '\\':
+        if (yytext[2] == '0') {
+          rc = escaped_null_character_err();
+        }
       break;
     default:
       rc = str_write(c, 1);
@@ -253,6 +272,7 @@ QUOTES          \"
     return (ERROR);
   }
 }
+
 <STRING>{BACKSLASH}             ;
 
 <STRING>{QUOTES} {
@@ -265,52 +285,52 @@ QUOTES          \"
 
 {WHITESPACE}                     ;
 
-{TRUE}                  { yylval.boolean = true; return (BOOL_CONST); }
-{FALSE}                 { yylval.boolean = false; return (BOOL_CONST); }
+<INITIAL>{TRUE}                  { yylval.boolean = true; return (BOOL_CONST); }
+<INITIAL>{FALSE}                 { yylval.boolean = false; return (BOOL_CONST); }
 
-{CLASS}                 { return (CLASS); }
-{ELSE}                  { return (ELSE); }
-{FI}                    { return (FI); }
-{IF}                    { return (IF); }
-{IN}                    { return (IN); }
-{INHERITS}              { return (INHERITS); }
-{ISVOID}                { return (ISVOID); }
-{LET}                   { return (LET); }
-{LOOP}                  { return (LOOP); }
-{POOL}                  { return (POOL); }
-{THEN}                  { return (THEN); }
-{WHILE}                 { return (WHILE); }
-{CASE}                  { return (CASE); }
-{ESAC}                  { return (ESAC); }
-{NEW}                   { return (NEW); }
-{OF}                    { return (OF); }
-{NOT}                   { return (NOT); }
-{DARROW}		             { return (DARROW); }
-{ASSIGN}                { return (ASSIGN); }
-{LE}                    { return (LE); }
+<INITIAL>{CLASS}                 { return (CLASS); }
+<INITIAL>{ELSE}                  { return (ELSE); }
+<INITIAL>{FI}                    { return (FI); }
+<INITIAL>{IF}                    { return (IF); }
+<INITIAL>{IN}                    { return (IN); }
+<INITIAL>{INHERITS}              { return (INHERITS); }
+<INITIAL>{ISVOID}                { return (ISVOID); }
+<INITIAL>{LET}                   { return (LET); }
+<INITIAL>{LOOP}                  { return (LOOP); }
+<INITIAL>{POOL}                  { return (POOL); }
+<INITIAL>{THEN}                  { return (THEN); }
+<INITIAL>{WHILE}                 { return (WHILE); }
+<INITIAL>{CASE}                  { return (CASE); }
+<INITIAL>{ESAC}                  { return (ESAC); }
+<INITIAL>{NEW}                   { return (NEW); }
+<INITIAL>{OF}                    { return (OF); }
+<INITIAL>{NOT}                   { return (NOT); }
+<INITIAL>{DARROW}		 { return (DARROW); }
+<INITIAL>{ASSIGN}                { return (ASSIGN); }
+<INITIAL>{LE}                    { return (LE); }
 
-{TYPEID}                { yylval.symbol = stringtable.add_string(yytext); return (TYPEID); }
-{OBJECTID}              { yylval.symbol = stringtable.add_string(yytext); return (OBJECTID); }
-{DIGIT}+                { yylval.symbol = stringtable.add_string(yytext); return (INT_CONST); }
+<INITIAL>{TYPEID}                { yylval.symbol = stringtable.add_string(yytext); return (TYPEID); }
+<INITIAL>{OBJECTID}              { yylval.symbol = stringtable.add_string(yytext); return (OBJECTID); }
+<INITIAL>{DIGIT}+                { yylval.symbol = stringtable.add_string(yytext); return (INT_CONST); }
 
-";"                     { return int(';'); }
-","                     { return int(','); }
-":"                     { return int(':'); }
-"{"                     { return int('{'); }
-"}"                     { return int('}'); }
-"+"                     { return int('+'); }
-"-"                     { return int('-'); }
-"*"                     { return int('*'); }
-"/"                     { return int('/'); }
-"<"                     { return int('<'); }
-"="                     { return int('='); }
-"~"                     { return int('~'); }
-"."                     { return int('.'); }
-"@"                     { return int('@'); }
-"("                     { return int('('); }
-")"                     { return int(')'); }
+<INITIAL>";"                     { return int(';'); }
+<INITIAL>","                     { return int(','); }
+<INITIAL>":"                     { return int(':'); }
+<INITIAL>"{"                     { return int('{'); }
+<INITIAL>"}"                     { return int('}'); }
+<INITIAL>"+"                     { return int('+'); }
+<INITIAL>"-"                     { return int('-'); }
+<INITIAL>"*"                     { return int('*'); }
+<INITIAL>"/"                     { return int('/'); }
+<INITIAL>"<"                     { return int('<'); }
+<INITIAL>"="                     { return int('='); }
+<INITIAL>"~"                     { return int('~'); }
+<INITIAL>"."                     { return int('.'); }
+<INITIAL>"@"                     { return int('@'); }
+<INITIAL>"("                     { return int('('); }
+<INITIAL>")"                     { return int(')'); }
 
-.                       { yylval.error_msg = yytext; return (ERROR); }
+<INITIAL>.                       { yylval.error_msg = yytext; return (ERROR); }
 
  /*
   * Keywords are case-insensitive except for the values true and false,
