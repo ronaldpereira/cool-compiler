@@ -71,9 +71,6 @@ char *getNextyytext() {
 %}
 
 NEWLINE         [\n]
-NOTNEWLINE      [^\n]
-NOTSTRING       [^\n\0\\\"]
-WHITESPACE      [ \t\r\f\v]+
 NULLCH          [\0]
 BACKSLASH       [\\]
 LINE_COMMENT    "--"
@@ -129,7 +126,7 @@ QUOTES          \"
     return (ERROR);
 }
 
-<INITIAL>{LINE_COMMENT}{NOTNEWLINE}* ;
+<INITIAL>{LINE_COMMENT}[^\n]* ;
 
 <INITIAL>{QUOTES} {
     BEGIN(STRING);
@@ -144,7 +141,7 @@ QUOTES          \"
     return ERROR;
 }
 
-<STRING>{NOTSTRING}* {
+<STRING>[^\n\0\\\"]* {
     int rc = string_error_check(yytext);
     if (rc != 0) {
         return (ERROR);
@@ -226,7 +223,7 @@ QUOTES          \"
   }
 }
 
-{WHITESPACE} ;
+[ \t\r\f\v]+ ;
 
 [0-9]+                            { yylval.symbol = stringtable.add_string(yytext); return (INT_CONST); }
 [cC][lL][aA][sS][sS]              { return (CLASS); }
