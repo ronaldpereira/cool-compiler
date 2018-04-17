@@ -72,17 +72,10 @@ char *getNextyytext() {
 
 NEWLINE         [\n]
 NOTNEWLINE      [^\n]
-NOTCOMMENT      [^\n*(\\]
 NOTSTRING       [^\n\0\\\"]
 WHITESPACE      [ \t\r\f\v]+
 NULLCH          [\0]
 BACKSLASH       [\\]
-STAR            [*]
-NOTSTAR         [^*]
-LEFTPAREN       [(]
-NOTLEFTPAREN    [^(]
-RIGHTPAREN      [)]
-NOTRIGHTPAREN   [^)]
 LINE_COMMENT    "--"
 START_COMMENT   "(*"
 END_COMMENT     "*)"
