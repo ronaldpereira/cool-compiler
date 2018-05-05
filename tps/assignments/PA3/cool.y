@@ -286,9 +286,9 @@
     | expression '.' OBJECTID '(' expression_comma_list ')'
     { $$ = dispatch($1, $3, $5); }
     | OBJECTID '(' ')'
-    { $$ = dispatch(object(idtable.add_string("Self")), $1, nil_Expressions()); }
+    { $$ = dispatch(object(idtable.add_string("self")), $1, nil_Expressions()); }
     | OBJECTID '(' expression_comma_list ')'
-    { $$ = dispatch(object(idtable.add_string("Self")), $1, $3); }
+    { $$ = dispatch(object(idtable.add_string("self")), $1, $3); }
     | IF expression THEN expression ELSE expression FI
     { $$ = cond($2, $4, $6); }
     | WHILE expression LOOP expression POOL
@@ -350,5 +350,4 @@
       
       if(omerrs>50) {fprintf(stdout, "More than 50 errors\n"); exit(1);}
     }
-    
-    
+ 
