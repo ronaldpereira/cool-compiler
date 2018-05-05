@@ -66,7 +66,9 @@ ${HSRC}:
 	@-ln -s ${CLASSDIR}/include/PA${ASSN}/$@ $@
 
 clean :
-	@-rm -f ${OUTPUT} *.s core ${OBJS} ${CGEN} ${HGEN} lexer parser cgen semant *~ *.a *.o 
+	@-rm -f ${OUTPUT} *.s core ${OBJS} ${CGEN} ${HGEN} lexer parser cgen semant *~ *.a *.o
+	@-rm ../../examples/*.s
+	@-rm ../../examples/*_output.txt
 
 clean-compile:
 	@-rm -f core ${OBJS} ${CGEN} ${HGEN} ${LSRC}
@@ -77,24 +79,23 @@ clean-compile:
 -include ${CFIL:.cc=.d}
 
 test:
-	@make clean && make parser && make && ./myparser ../../examples/arith.cl > ../../examples/arith_output.txt && ./mycoolc ../../examples/arith.cl
-	@make clean && make parser && make && ./myparser ../../examples/atoi_test.cl > ../../examples/atoi_test_output.txt && ./mycoolc ../../examples/atoi_test.cl ../../examples/atoi.cl
-	@make clean && make parser && make && ./myparser ../../examples/book_list.cl > ../../examples/book_list_output.txt && ./mycoolc ../../examples/book_list.cl
-	@make clean && make parser && make && ./myparser ../../examples/cells.cl > ../../examples/cells_output.txt && ./mycoolc ../../examples/cells.cl
-	@make clean && make parser && make && ./myparser ../../examples/complex.cl > ../../examples/complex_output.txt && ./mycoolc ../../examples/complex.cl
-	@make clean && make parser && make && ./myparser ../../examples/cool.cl > ../../examples/cool_output.txt && ./mycoolc ../../examples/cool.cl
-	@make clean && make parser && make && ./myparser ../../examples/graph.cl > ../../examples/graph_output.txt && ./mycoolc ../../examples/graph.cl
-	@make clean && make parser && make && ./myparser ../../examples/hairyscary.cl > ../../examples/hairyscary_output.txt && ./mycoolc ../../examples/hairyscary.cl
-	@make clean && make parser && make && ./myparser ../../examples/hello_world.cl > ../../examples/hello_world_output.txt && ./mycoolc ../../examples/hello_world.cl
-	@make clean && make parser && make && ./myparser ../../examples/io.cl > ../../examples/io_output.txt && ./mycoolc ../../examples/io.cl
-	@make clean && make parser && make && ./myparser ../../examples/lam.cl > ../../examples/lam_output.txt && ./mycoolc ../../examples/lam.cl
-	@make clean && make parser && make && ./myparser ../../examples/life.cl > ../../examples/life_output.txt && ./mycoolc ../../examples/life.cl
-	@make clean && make parser && make && ./myparser ../../examples/list.cl > ../../examples/list_output.txt && ./mycoolc ../../examples/list.cl
-	@make clean && make parser && make && ./myparser ../../examples/new_complex.cl > ../../examples/new_complex_output.txt && ./mycoolc ../../examples/new_complex.cl
-	@make clean && make parser && make && ./myparser ../../examples/palindrome.cl > ../../examples/palindrome_output.txt && ./mycoolc ../../examples/palindrome.cl
-	@make clean && make parser && make && ./myparser ../../examples/primes.cl > ../../examples/primes_output.txt && ./mycoolc ../../examples/primes.cl
-	@make clean && make parser && make && ./myparser ../../examples/sort_list.cl > ../../examples/sort_list_output.txt && ./mycoolc ../../examples/sort_list.cl
-
-clean-tests:
-	rm ../../examples/*.s
-	rm ../../examples/*_output.txt
+	@make clean
+	@make parser
+	@make
+	@./myparser ../../examples/arith.cl > ../../examples/arith_output.txt && ./mycoolc ../../examples/arith.cl
+	@./myparser ../../examples/atoi_test.cl > ../../examples/atoi_test_output.txt && ./mycoolc ../../examples/atoi_test.cl ../../examples/atoi.cl
+	@./myparser ../../examples/book_list.cl > ../../examples/book_list_output.txt && ./mycoolc ../../examples/book_list.cl
+	@./myparser ../../examples/cells.cl > ../../examples/cells_output.txt && ./mycoolc ../../examples/cells.cl
+	@./myparser ../../examples/complex.cl > ../../examples/complex_output.txt && ./mycoolc ../../examples/complex.cl
+	@./myparser ../../examples/cool.cl > ../../examples/cool_output.txt && ./mycoolc ../../examples/cool.cl
+	@./myparser ../../examples/graph.cl > ../../examples/graph_output.txt && ./mycoolc ../../examples/graph.cl
+	@./myparser ../../examples/hairyscary.cl > ../../examples/hairyscary_output.txt && ./mycoolc ../../examples/hairyscary.cl
+	@./myparser ../../examples/hello_world.cl > ../../examples/hello_world_output.txt && ./mycoolc ../../examples/hello_world.cl
+	@./myparser ../../examples/io.cl > ../../examples/io_output.txt && ./mycoolc ../../examples/io.cl
+	@./myparser ../../examples/lam.cl > ../../examples/lam_output.txt && ./mycoolc ../../examples/lam.cl
+	@./myparser ../../examples/life.cl > ../../examples/life_output.txt && ./mycoolc ../../examples/life.cl
+	@./myparser ../../examples/list.cl > ../../examples/list_output.txt && ./mycoolc ../../examples/list.cl
+	@./myparser ../../examples/new_complex.cl > ../../examples/new_complex_output.txt && ./mycoolc ../../examples/new_complex.cl
+	@./myparser ../../examples/palindrome.cl > ../../examples/palindrome_output.txt && ./mycoolc ../../examples/palindrome.cl
+	@./myparser ../../examples/primes.cl > ../../examples/primes_output.txt && ./mycoolc ../../examples/primes.cl
+	@./myparser ../../examples/sort_list.cl > ../../examples/sort_list_output.txt && ./mycoolc ../../examples/sort_list.cl
