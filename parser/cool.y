@@ -180,7 +180,7 @@
     
     /* If no parent is specified, the class inherits from the Object class. */
     class
-        : CLASS TYPEID '{' features '}' ';' { $$ = class_($2,idtable.add_string("Object"),$4, stringtable.add_string(curr_filename)); } stringtable.add_string(curr_filename)); }
+        : CLASS TYPEID '{' features '}' ';' { $$ = class_($2,idtable.add_string("Object"),$4, stringtable.add_string(curr_filename)); }
         | CLASS TYPEID INHERITS TYPEID '{' features '}' ';' { $$ = class_($2,$4,$6,stringtable.add_string(curr_filename)); }
         ;
     
