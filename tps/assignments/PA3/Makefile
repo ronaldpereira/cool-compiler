@@ -99,3 +99,4 @@ test:
 	@./myparser ../../examples/palindrome.cl > ../../examples/palindrome_output.txt && ./mycoolc ../../examples/palindrome.cl
 	@./myparser ../../examples/primes.cl > ../../examples/primes_output.txt && ./mycoolc ../../examples/primes.cl
 	@./myparser ../../examples/sort_list.cl > ../../examples/sort_list_output.txt && ./mycoolc ../../examples/sort_list.cl
+	@./myparser ../../examples/stack.cl > ../../examples/stack_output.txt && ./mycoolc ../../examples/stack.cl ../../examples/atoi.cl -o ../../examples/stack.s

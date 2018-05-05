@@ -173,15 +173,17 @@
     
     classes
         : class /* single class */ { $$ = single_Classes($1); parse_results = $$; }
-        | classes class /* several classes */ { $$ = append_Classes($1,single_Classes($2)); parse_results = $$; }
+        | classes class /* several classes */ { $$ = append_Classes($1, single_Classes($2)); parse_results = $$; }
         | classes error {}
         | error {}
         ;
     
     /* If no parent is specified, the class inherits from the Object class. */
     class
-        : CLASS TYPEID '{' features '}' ';' { $$ = class_($2,idtable.add_string("Object"),$4, stringtable.add_string(curr_filename)); }
-        | CLASS TYPEID INHERITS TYPEID '{' features '}' ';' { $$ = class_($2,$4,$6,stringtable.add_string(curr_filename)); }
+        : CLASS TYPEID '{' features '}' ';' { $$ = class_($2, idtable.add_string("Object"),$4, stringtable.add_string(curr_filename)); }
+        | CLASS TYPEID '{' '}' ';' { $$ = class_($2, idtable.add_string("Object"),nil_Features(), stringtable.add_string(curr_filename)); }
+        | CLASS TYPEID INHERITS TYPEID '{' features '}' ';' { $$ = class_($2, $4, $6, stringtable.add_string(curr_filename)); }
+        | CLASS TYPEID INHERITS TYPEID '{' '}' ';' { $$ = class_($2, $4, nil_Features(), stringtable.add_string(curr_filename)); }
         ;
     
     /* Feature list may be empty, but no empty features in list. */
