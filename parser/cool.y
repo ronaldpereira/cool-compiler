@@ -131,7 +131,7 @@
     
     /* Declare types for the grammar's non-terminals. */
     %type <program> program
-    %type <classes> class_list
+    %type <classes> classes
     %type <class_> class
     
     /* You will want to change the following line. */
@@ -168,13 +168,13 @@
     Save the root of the abstract syntax tree in a global variable.
     */
     program
-        : class_list	{ @$ = @1; ast_root = program($1); }
+        : classes	{ @$ = @1; ast_root = program($1); }
         ;
     
-    class_list
+    classes
         : class /* single class */ { $$ = single_Classes($1); parse_results = $$; }
-        | class_list class /* several classes */ { $$ = append_Classes($1,single_Classes($2)); parse_results = $$; }
-        | class_list error {}
+        | classes class /* several classes */ { $$ = append_Classes($1,single_Classes($2)); parse_results = $$; }
+        | classes error {}
         | error {}
         ;
     
