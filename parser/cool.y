@@ -87,20 +87,20 @@
     
     /* A union of all the types that can be the result of parsing actions. */
     %union {
-      Boolean boolean;
-      Symbol symbol;
-      Program program;
-      Class_ class_;
-      Classes classes;
-      Feature feature;
-      Features features;
-      Formal formal;
-      Formals formals;
-      Case case_;
-      Cases cases;
-      Expression expression;
-      Expressions expressions;
-      char *error_msg;
+        Boolean boolean;
+        Symbol symbol;
+        Program program;
+        Class_ class_;
+        Classes classes;
+        Feature feature;
+        Features features;
+        Formal formal;
+        Formals formals;
+        Case case_;
+        Cases cases;
+        Expression expression;
+        Expressions expressions;
+        char *error_msg;
     }
     
     /* 
@@ -135,19 +135,19 @@
     %type <class_> class
     
     /* You will want to change the following line. */
-    %type <features> feature_list
+    %type <features> features
     %type <feature> feature
 
-    %type <formals> formal_list
+    %type <formals> formals
     %type <formal> formal
 
-    %type <cases> branch_list
+    %type <cases> branches
     %type <case_> branch
 
     %type <expression> let
 
-    %type <expressions> expression_semicolon_list
-    %type <expressions> expression_comma_list
+    %type <expressions> expressions_semicolon
+    %type <expressions> expressions_comma
     %type <expression> expression
     
     /* Precedence declarations go here. */
@@ -167,171 +167,106 @@
     /* 
     Save the root of the abstract syntax tree in a global variable.
     */
-    program	: class_list	{ @$ = @1; ast_root = program($1); }
-    ;
+    program
+        : class_list	{ @$ = @1; ast_root = program($1); }
+        ;
     
     class_list
-    : class			/* single class */
-    { $$ = single_Classes($1);
-    parse_results = $$; }
-    | class_list class	/* several classes */
-    { $$ = append_Classes($1,single_Classes($2)); 
-    parse_results = $$; }
-    | class_list error
-    {}
-    | error
-    {}
-    ;
+        : class /* single class */ { $$ = single_Classes($1); parse_results = $$; }
+        | class_list class /* several classes */ { $$ = append_Classes($1,single_Classes($2)); parse_results = $$; }
+        | class_list error {}
+        | error {}
+        ;
     
     /* If no parent is specified, the class inherits from the Object class. */
-    class	: CLASS TYPEID '{' feature_list '}' ';'
-    { $$ = class_($2,idtable.add_string("Object"),$4,
-    stringtable.add_string(curr_filename)); }
-    | CLASS TYPEID '{' '}' ';'
-    { $$ = class_($2,idtable.add_string("Object"),nil_Features(),
-    stringtable.add_string(curr_filename)); }
-    | CLASS TYPEID INHERITS TYPEID '{' feature_list '}' ';'
-    { $$ = class_($2,$4,$6,stringtable.add_string(curr_filename)); }
-    | CLASS TYPEID INHERITS TYPEID '{' '}' ';'
-    { $$ = class_($2,$4,nil_Features(),stringtable.add_string(curr_filename)); }
-    ;
+    class
+        : CLASS TYPEID '{' features '}' ';' { $$ = class_($2,idtable.add_string("Object"),$4, stringtable.add_string(curr_filename)); } stringtable.add_string(curr_filename)); }
+        | CLASS TYPEID INHERITS TYPEID '{' features '}' ';' { $$ = class_($2,$4,$6,stringtable.add_string(curr_filename)); }
+        ;
     
     /* Feature list may be empty, but no empty features in list. */
-    feature_list
-    : feature ';'
-    { $$ = single_Features($1); }
-    | feature_list feature ';'
-    { $$ = append_Features($1, single_Features($2)); }
-    | feature_list error ';'
-    {}
-    | error ';'
-    {}
-    ;
+    features
+        : feature ';' { $$ = single_Features($1); }
+        | features feature ';' { $$ = append_Features($1, single_Features($2)); }
+        | features error ';' {}
+        | error ';' {}
+        ;
 
     feature
-    : OBJECTID '(' ')' ':' TYPEID '{' expression '}'
-    { $$ = method($1, nil_Formals(), $5, $7); }
-    | OBJECTID '(' formal_list ')' ':' TYPEID '{' expression '}'
-    { $$ = method($1, $3, $6, $8); }
-    | OBJECTID ':' TYPEID ASSIGN expression
-    { $$ = attr($1, $3, $5); }
-    | OBJECTID ':' TYPEID
-    { $$ = attr($1, $3, no_expr()); }
-    ;
+      : OBJECTID '(' ')' ':' TYPEID '{' expression '}' { $$ = method($1, nil_Formals(), $5, $7); }
+      | OBJECTID '(' formals ')' ':' TYPEID '{' expression '}' { $$ = method($1, $3, $6, $8); }
+      | OBJECTID ':' TYPEID ASSIGN expression { $$ = attr($1, $3, $5); }
+      | OBJECTID ':' TYPEID { $$ = attr($1, $3, no_expr()); }
+      ;
 
-    formal_list
-    : formal
-    { $$ = single_Formals($1); }
-    | formal_list ',' formal
-    { $$ = append_Formals($1, single_Formals($3)); }
-    ;
+    formals
+        : formal { $$ = single_Formals($1); }
+        | formals ',' formal { $$ = append_Formals($1, single_Formals($3)); }
+        ;
 
     formal
-    : OBJECTID ':' TYPEID
-    { $$ = formal($1, $3); }
-    ;
+        : OBJECTID ':' TYPEID { $$ = formal($1, $3); }
+        ;
 
-    expression_comma_list
-    : expression
-    { $$ = single_Expressions($1); }
-    | expression_comma_list ',' expression
-    { $$ = append_Expressions($1, single_Expressions($3)); }
-    ;
+    expressions_comma
+        : expression { $$ = single_Expressions($1); }
+        | expressions_comma ',' expression { $$ = append_Expressions($1, single_Expressions($3)); }
+        ;
 
-    expression_semicolon_list
-    : expression ';'
-    { $$ = single_Expressions($1); }
-    | expression_semicolon_list expression ';'
-    { $$ = append_Expressions($1, single_Expressions($2)); }
-    | expression_semicolon_list error ';'
-    {}
-    | error ';'
-    {}
-    ;
+    expressions_semicolon
+        : expression ';' { $$ = single_Expressions($1); }
+        | expressions_semicolon expression ';' { $$ = append_Expressions($1, single_Expressions($2)); }
+        | expressions_semicolon error ';' {}
+        | error ';' {}
+        ;
 
     branch
-    : OBJECTID ':' TYPEID DARROW expression ';'
-    { $$ = branch($1, $3, $5); }
-    ;
+        : OBJECTID ':' TYPEID DARROW expression ';' { $$ = branch($1, $3, $5); }
+        ;
 
-    branch_list
-    : branch
-    { $$ = single_Cases($1); }
-    | branch_list branch
-    { $$ = append_Cases($1, single_Cases($2)); }
-    ;
+    branches
+        : branch { $$ = single_Cases($1); }
+        | branches branch { $$ = append_Cases($1, single_Cases($2)); }
+        ;
 
     let
-    : OBJECTID ':' TYPEID IN expression
-    { $$ = let($1, $3, no_expr(), $5); }
-    | OBJECTID ':' TYPEID ASSIGN expression IN expression
-    { $$ = let($1, $3, $5, $7); }
-    | OBJECTID ':' TYPEID ',' let
-    { $$ = let($1, $3, no_expr(), $5); }
-    | OBJECTID ':' TYPEID ASSIGN expression ',' let
-    { $$ = let($1, $3, $5, $7); }
-    | error let
-    { }
-    ;
+        : OBJECTID ':' TYPEID IN expression { $$ = let($1, $3, no_expr(), $5); }
+        | OBJECTID ':' TYPEID ASSIGN expression IN expression { $$ = let($1, $3, $5, $7); }
+        | OBJECTID ':' TYPEID ',' let { $$ = let($1, $3, no_expr(), $5); }
+        | OBJECTID ':' TYPEID ASSIGN expression ',' let { $$ = let($1, $3, $5, $7); }
+        | error let { }
+        ;
 
     expression
-    : OBJECTID ASSIGN expression
-    { $$ = assign($1, $3); }
-    | expression '@' TYPEID '.' OBJECTID '(' ')'
-    { $$ = static_dispatch($1, $3, $5, nil_Expressions()); }
-    | expression '@' TYPEID '.' OBJECTID '(' expression_comma_list ')'
-    { $$ = static_dispatch($1, $3, $5, $7); }
-    | expression '.' OBJECTID '(' ')'
-    { $$ = dispatch($1, $3, nil_Expressions()); }
-    | expression '.' OBJECTID '(' expression_comma_list ')'
-    { $$ = dispatch($1, $3, $5); }
-    | OBJECTID '(' ')'
-    { $$ = dispatch(object(idtable.add_string("self")), $1, nil_Expressions()); }
-    | OBJECTID '(' expression_comma_list ')'
-    { $$ = dispatch(object(idtable.add_string("self")), $1, $3); }
-    | IF expression THEN expression ELSE expression FI
-    { $$ = cond($2, $4, $6); }
-    | WHILE expression LOOP expression POOL
-    { $$ = loop($2, $4); }
-    | '{' expression_semicolon_list '}'
-    { $$ = block($2); }
-    | LET let
-    { $$ = $2; }
-    | CASE expression OF branch_list ESAC
-    { $$ = typcase($2, $4); }
-    | NEW TYPEID
-    { $$ = new_($2); }
-    | ISVOID expression
-    { $$ = isvoid($2); }
-    | expression '+' expression
-    { $$ = plus($1, $3); }
-    | expression '-' expression
-    { $$ = sub($1, $3); }
-    | expression '*' expression
-    { $$ = mul($1, $3); }
-    | expression '/' expression
-    { $$ = divide($1, $3); }
-    | '~' expression
-    { $$ = neg($2); }
-    | expression '<' expression
-    { $$ = lt($1, $3); }
-    | expression LE expression
-    { $$ = leq($1, $3); }
-    | expression '=' expression
-    { $$ = eq($1, $3); }
-    | NOT expression
-    { $$ = comp($2); }
-    | '(' expression ')'
-    { $$ = $2; }
-    | OBJECTID
-    { $$ = object($1); }
-    | INT_CONST
-    { $$ = int_const($1); }
-    | STR_CONST
-    { $$ = string_const($1); }
-    | BOOL_CONST
-    { $$ = bool_const($1); }
-    ;
+        : OBJECTID ASSIGN expression { $$ = assign($1, $3); }
+        | expression '@' TYPEID '.' OBJECTID '(' ')' { $$ = static_dispatch($1, $3, $5, nil_Expressions()); }
+        | expression '@' TYPEID '.' OBJECTID '(' expressions_comma ')' { $$ = static_dispatch($1, $3, $5, $7); }
+        | expression '.' OBJECTID '(' ')' { $$ = dispatch($1, $3, nil_Expressions()); }
+        | expression '.' OBJECTID '(' expressions_comma ')' { $$ = dispatch($1, $3, $5); }
+        | OBJECTID '(' ')' { $$ = dispatch(object(idtable.add_string("self")), $1, nil_Expressions()); }
+        | OBJECTID '(' expressions_comma ')' { $$ = dispatch(object(idtable.add_string("self")), $1, $3); }
+        | IF expression THEN expression ELSE expression FI { $$ = cond($2, $4, $6); }
+        | WHILE expression LOOP expression POOL { $$ = loop($2, $4); }
+        | '{' expressions_semicolon '}' { $$ = block($2); }
+        | LET let { $$ = $2; }
+        | CASE expression OF branches ESAC { $$ = typcase($2, $4); }
+        | NEW TYPEID { $$ = new_($2); }
+        | ISVOID expression { $$ = isvoid($2); }
+        | expression '+' expression { $$ = plus($1, $3); }
+        | expression '-' expression { $$ = sub($1, $3); }
+        | expression '*' expression { $$ = mul($1, $3); }
+        | expression '/' expression { $$ = divide($1, $3); }
+        | '~' expression { $$ = neg($2); }
+        | expression '<' expression { $$ = lt($1, $3); }
+        | expression LE expression { $$ = leq($1, $3); }
+        | expression '=' expression { $$ = eq($1, $3); }
+        | NOT expression { $$ = comp($2); }
+        | '(' expression ')' { $$ = $2; }
+        | OBJECTID { $$ = object($1); }
+        | INT_CONST { $$ = int_const($1); }
+        | STR_CONST { $$ = string_const($1); }
+        | BOOL_CONST { $$ = bool_const($1); }
+        ;
     
     
     /* end of grammar */
@@ -340,14 +275,14 @@
     /* This function is called automatically when Bison detects a parse error. */
     void yyerror(char *s)
     {
-      extern int curr_lineno;
+        extern int curr_lineno;
       
-      cerr << "\"" << curr_filename << "\", line " << curr_lineno << ": " \
-      << s << " at or near ";
-      print_cool_token(yychar);
-      cerr << endl;
-      omerrs++;
-      
-      if(omerrs>50) {fprintf(stdout, "More than 50 errors\n"); exit(1);}
+        cerr << "\"" << curr_filename << "\", line " << curr_lineno << ": " \
+        << s << " at or near ";
+        print_cool_token(yychar);
+        cerr << endl;
+        omerrs++;
+        
+        if(omerrs>50) {fprintf(stdout, "More than 50 errors\n"); exit(1);}
     }
  
