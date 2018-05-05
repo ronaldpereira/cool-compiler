@@ -37,41 +37,64 @@ lsource: ${LSRC}
 
 ${OUTPUT}:	parser good.cl bad.cl
 	@rm -f ${OUTPUT}
-	./myparser good.cl >good.output 2>&1 
-	-./myparser bad.cl >bad.output 2>&1 
+	@./myparser good.cl >good.output 2>&1 
+	@-./myparser bad.cl >bad.output 2>&1 
 
 parser: ${OBJS}
-	${CC} ${CFLAGS} ${OBJS} ${LIB} -o parser
+	@${CC} ${CFLAGS} ${OBJS} ${LIB} -o parser
 
 .cc.o:
-	${CC} ${CFLAGS} -c $<
+	@${CC} ${CFLAGS} -c $<
 
 cool-parse.cc cool-parse.h: cool.y
-	bison ${BFLAGS} cool.y
-	mv -f cool.tab.c cool-parse.cc
+	@bison ${BFLAGS} cool.y
+	@mv -f cool.tab.c cool-parse.cc
 
 dotest:	parser good.cl bad.cl
 	@echo "\nRunning parser on good.cl\n"
-	-./myparser good.cl 
+	@-./myparser good.cl 
 	@echo "\nRunning parser on bad.cl\n"
-	-./myparser bad.cl
+	@-./myparser bad.cl
 
 ${LIBS}:
-	${CLASSDIR}/etc/link-object ${ASSN} $@
+	@${CLASSDIR}/etc/link-object ${ASSN} $@
 
 ${TSRC} ${CSRC}:
-	-ln -s ${CLASSDIR}/src/PA${ASSN}/$@ $@
+	@-ln -s ${CLASSDIR}/src/PA${ASSN}/$@ $@
 
 ${HSRC}:
-	-ln -s ${CLASSDIR}/include/PA${ASSN}/$@ $@
+	@-ln -s ${CLASSDIR}/include/PA${ASSN}/$@ $@
 
 clean :
-	-rm -f ${OUTPUT} *.s core ${OBJS} ${CGEN} ${HGEN} lexer parser cgen semant *~ *.a *.o 
+	@-rm -f ${OUTPUT} *.s core ${OBJS} ${CGEN} ${HGEN} lexer parser cgen semant *~ *.a *.o 
 
 clean-compile:
 	@-rm -f core ${OBJS} ${CGEN} ${HGEN} ${LSRC}
 
 %.d: %.cc ${LSRC}
-	${SHELL} -ec '${DEPEND} $< | sed '\''s/\($*\.o\)[ :]*/\1 $@ : /g'\'' > $@'
+	@${SHELL} -ec '${DEPEND} $< | sed '\''s/\($*\.o\)[ :]*/\1 $@ : /g'\'' > $@'
 
 -include ${CFIL:.cc=.d}
+
+test:
+	@make clean && make parser && make && ./myparser ../../examples/arith.cl > ../../examples/arith_output.txt && ./mycoolc ../../examples/arith.cl
+	@make clean && make parser && make && ./myparser ../../examples/atoi_test.cl > ../../examples/atoi_test_output.txt && ./mycoolc ../../examples/atoi_test.cl ../../examples/atoi.cl
+	@make clean && make parser && make && ./myparser ../../examples/book_list.cl > ../../examples/book_list_output.txt && ./mycoolc ../../examples/book_list.cl
+	@make clean && make parser && make && ./myparser ../../examples/cells.cl > ../../examples/cells_output.txt && ./mycoolc ../../examples/cells.cl
+	@make clean && make parser && make && ./myparser ../../examples/complex.cl > ../../examples/complex_output.txt && ./mycoolc ../../examples/complex.cl
+	@make clean && make parser && make && ./myparser ../../examples/cool.cl > ../../examples/cool_output.txt && ./mycoolc ../../examples/cool.cl
+	@make clean && make parser && make && ./myparser ../../examples/graph.cl > ../../examples/graph_output.txt && ./mycoolc ../../examples/graph.cl
+	@make clean && make parser && make && ./myparser ../../examples/hairyscary.cl > ../../examples/hairyscary_output.txt && ./mycoolc ../../examples/hairyscary.cl
+	@make clean && make parser && make && ./myparser ../../examples/hello_world.cl > ../../examples/hello_world_output.txt && ./mycoolc ../../examples/hello_world.cl
+	@make clean && make parser && make && ./myparser ../../examples/io.cl > ../../examples/io_output.txt && ./mycoolc ../../examples/io.cl
+	@make clean && make parser && make && ./myparser ../../examples/lam.cl > ../../examples/lam_output.txt && ./mycoolc ../../examples/lam.cl
+	@make clean && make parser && make && ./myparser ../../examples/life.cl > ../../examples/life_output.txt && ./mycoolc ../../examples/life.cl
+	@make clean && make parser && make && ./myparser ../../examples/list.cl > ../../examples/list_output.txt && ./mycoolc ../../examples/list.cl
+	@make clean && make parser && make && ./myparser ../../examples/new_complex.cl > ../../examples/new_complex_output.txt && ./mycoolc ../../examples/new_complex.cl
+	@make clean && make parser && make && ./myparser ../../examples/palindrome.cl > ../../examples/palindrome_output.txt && ./mycoolc ../../examples/palindrome.cl
+	@make clean && make parser && make && ./myparser ../../examples/primes.cl > ../../examples/primes_output.txt && ./mycoolc ../../examples/primes.cl
+	@make clean && make parser && make && ./myparser ../../examples/sort_list.cl > ../../examples/sort_list_output.txt && ./mycoolc ../../examples/sort_list.cl
+
+clean-tests:
+	rm ../../examples/*.s
+	rm ../../examples/*_output.txt
