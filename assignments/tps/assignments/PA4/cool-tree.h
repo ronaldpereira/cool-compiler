@@ -1,12 +1,5 @@
 #ifndef COOL_TREE_H
 #define COOL_TREE_H
-//////////////////////////////////////////////////////////
-//
-// file: cool-tree.h
-//
-// This file defines classes for each phylum and constructor
-//
-//////////////////////////////////////////////////////////
 
 #include <list>
 #include <map>
@@ -15,9 +8,6 @@
 #include "tree.h"
 #include "cool-tree.handcode.h"
 
-
-// define the class for phylum
-// define simple phylum - Program
 typedef class Program_class *Program;
 
 class Program_class : public tree_node {
@@ -30,8 +20,6 @@ public:
 #endif
 };
 
-
-// define simple phylum - Class_
 typedef class Class__class *Class_;
 
 class Class__class : public tree_node {
@@ -57,8 +45,6 @@ public:
 #endif
 };
 
-
-// define simple phylum - Feature
 typedef class Feature_class *Feature;
 
 class Feature_class : public tree_node {
@@ -80,8 +66,6 @@ public:
 #endif
 };
 
-
-// define simple phylum - Formal
 typedef class Formal_class *Formal;
 
 class Formal_class : public tree_node {
@@ -97,8 +81,6 @@ public:
 #endif
 };
 
-
-// define simple phylum - Expression
 typedef class Expression_class *Expression;
 
 class Expression_class : public tree_node {
@@ -112,8 +94,6 @@ public:
 #endif
 };
 
-
-// define simple phylum - Case
 typedef class Case_class *Case;
 
 class Case_class : public tree_node {
@@ -129,35 +109,21 @@ public:
 #endif
 };
 
-
-// define the class for phylum - LIST
-// define list phlyum - Classes
 typedef list_node<Class_> Classes_class;
 typedef Classes_class *Classes;
 
-
-// define list phlyum - Features
 typedef list_node<Feature> Features_class;
 typedef Features_class *Features;
 
-
-// define list phlyum - Formals
 typedef list_node<Formal> Formals_class;
 typedef Formals_class *Formals;
 
-
-// define list phlyum - Expressions
 typedef list_node<Expression> Expressions_class;
 typedef Expressions_class *Expressions;
 
-
-// define list phlyum - Cases
 typedef list_node<Case> Cases_class;
 typedef Cases_class *Cases;
 
-
-// define the class for constructors
-// define constructor - program
 class program_class : public Program_class {
 protected:
    Classes classes;
@@ -176,8 +142,6 @@ public:
 #endif
 };
 
-
-// define constructor - class_
 class class__class : public Class__class {
 protected:
    Symbol name;
@@ -233,8 +197,6 @@ public:
 #endif
 };
 
-
-// define constructor - method
 class method_class : public Feature_class {
 protected:
    Symbol name;
@@ -273,8 +235,6 @@ public:
 #endif
 };
 
-
-// define constructor - attr
 class attr_class : public Feature_class {
 protected:
    Symbol name;
@@ -315,8 +275,6 @@ public:
 #endif
 };
 
-
-// define constructor - formal
 class formal_class : public Formal_class {
 protected:
    Symbol name;
@@ -344,8 +302,6 @@ public:
 #endif
 };
 
-
-// define constructor - branch
 class branch_class : public Case_class {
 protected:
    Symbol name;
@@ -375,8 +331,6 @@ public:
 #endif
 };
 
-
-// define constructor - assign
 class assign_class : public Expression_class {
 protected:
    Symbol name;
@@ -398,8 +352,6 @@ public:
 #endif
 };
 
-
-// define constructor - static_dispatch
 class static_dispatch_class : public Expression_class {
 protected:
    Expression expr;
@@ -425,8 +377,6 @@ public:
 #endif
 };
 
-
-// define constructor - dispatch
 class dispatch_class : public Expression_class {
 protected:
    Expression expr;
@@ -450,8 +400,6 @@ public:
 #endif
 };
 
-
-// define constructor - cond
 class cond_class : public Expression_class {
 protected:
    Expression pred;
@@ -475,8 +423,6 @@ public:
 #endif
 };
 
-
-// define constructor - loop
 class loop_class : public Expression_class {
 protected:
    Expression pred;
@@ -498,8 +444,6 @@ public:
 #endif
 };
 
-
-// define constructor - typcase
 class typcase_class : public Expression_class {
 protected:
    Expression expr;
@@ -522,8 +466,6 @@ public:
 #endif
 };
 
-
-// define constructor - block
 class block_class : public Expression_class {
 protected:
    Expressions body;
@@ -543,8 +485,6 @@ public:
 #endif
 };
 
-
-// define constructor - let
 class let_class : public Expression_class {
 protected:
    Symbol identifier;
@@ -570,8 +510,6 @@ public:
 #endif
 };
 
-
-// define constructor - plus
 class plus_class : public Expression_class {
 protected:
    Expression e1;
@@ -593,8 +531,6 @@ public:
 #endif
 };
 
-
-// define constructor - sub
 class sub_class : public Expression_class {
 protected:
    Expression e1;
@@ -616,8 +552,6 @@ public:
 #endif
 };
 
-
-// define constructor - mul
 class mul_class : public Expression_class {
 protected:
    Expression e1;
@@ -639,8 +573,6 @@ public:
 #endif
 };
 
-
-// define constructor - divide
 class divide_class : public Expression_class {
 protected:
    Expression e1;
@@ -662,8 +594,6 @@ public:
 #endif
 };
 
-
-// define constructor - neg
 class neg_class : public Expression_class {
 protected:
    Expression e1;
@@ -683,8 +613,6 @@ public:
 #endif
 };
 
-
-// define constructor - lt
 class lt_class : public Expression_class {
 protected:
    Expression e1;
@@ -706,8 +634,6 @@ public:
 #endif
 };
 
-
-// define constructor - eq
 class eq_class : public Expression_class {
 protected:
    Expression e1;
@@ -729,8 +655,6 @@ public:
 #endif
 };
 
-
-// define constructor - leq
 class leq_class : public Expression_class {
 protected:
    Expression e1;
@@ -752,8 +676,6 @@ public:
 #endif
 };
 
-
-// define constructor - comp
 class comp_class : public Expression_class {
 protected:
    Expression e1;
@@ -773,8 +695,6 @@ public:
 #endif
 };
 
-
-// define constructor - int_const
 class int_const_class : public Expression_class {
 protected:
    Symbol token;
@@ -794,8 +714,6 @@ public:
 #endif
 };
 
-
-// define constructor - bool_const
 class bool_const_class : public Expression_class {
 protected:
    Boolean val;
@@ -815,8 +733,6 @@ public:
 #endif
 };
 
-
-// define constructor - string_const
 class string_const_class : public Expression_class {
 protected:
    Symbol token;
@@ -836,8 +752,6 @@ public:
 #endif
 };
 
-
-// define constructor - new_
 class new__class : public Expression_class {
 protected:
    Symbol type_name;
@@ -857,8 +771,6 @@ public:
 #endif
 };
 
-
-// define constructor - isvoid
 class isvoid_class : public Expression_class {
 protected:
    Expression e1;
@@ -878,8 +790,6 @@ public:
 #endif
 };
 
-
-// define constructor - no_expr
 class no_expr_class : public Expression_class {
 protected:
 public:
@@ -897,8 +807,6 @@ public:
 #endif
 };
 
-
-// define constructor - object
 class object_class : public Expression_class {
 protected:
    Symbol name;
@@ -918,8 +826,6 @@ public:
 #endif
 };
 
-
-// define the prototypes of the interface
 Classes nil_Classes();
 Classes single_Classes(Class_);
 Classes append_Classes(Classes, Classes);
@@ -965,6 +871,5 @@ Expression new_(Symbol);
 Expression isvoid(Expression);
 Expression no_expr();
 Expression object(Symbol);
-
 
 #endif

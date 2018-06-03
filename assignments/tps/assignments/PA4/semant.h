@@ -14,11 +14,6 @@
 class ClassTable;
 typedef ClassTable *ClassTableP;
 
-// This is a structure that may be used to contain the semantic
-// information such as the inheritance graph.  You may use it or not as
-// you like: it is only here to provide a container for the supplied
-// methods.
-
 class ClassTable {
 private:
   std::map<Symbol, Class_> *class_table;
