@@ -4,3 +4,4 @@
 
 - Lexer made using Flex
 - Parser made using Bison
+- Semantic Analyzer made using C++
