@@ -3,3 +3,4 @@ test/*
 gitReady/*
 tpsSchema/*
 deliverFiles/tp*/ready/*
+settings.json

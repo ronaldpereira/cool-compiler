@@ -1,20 +1,13 @@
 #ifndef COOL_TREE_H
 #define COOL_TREE_H
-//////////////////////////////////////////////////////////
-//
-// file: cool-tree.h
-//
-// This file defines classes for each phylum and constructor
-//
-//////////////////////////////////////////////////////////
 
+#include <list>
+#include <map>
+#include <symtab.h>
 
 #include "tree.h"
 #include "cool-tree.handcode.h"
 
-
-// define the class for phylum
-// define simple phylum - Program
 typedef class Program_class *Program;
 
 class Program_class : public tree_node {
@@ -27,12 +20,23 @@ public:
 #endif
 };
 
-
-// define simple phylum - Class_
 typedef class Class__class *Class_;
 
 class Class__class : public tree_node {
 public:
+   virtual Symbol get_name() = 0;
+   virtual Symbol get_parent() = 0;
+   virtual bool get_marked() = 0;
+   virtual Symbol get_attr(Symbol var) = 0;
+   virtual Feature get_method(Symbol method_name) = 0;
+   virtual int get_environment() = 0;
+   virtual void add_child(Class_ class_) = 0;
+   virtual int check_cycle() = 0;
+   virtual int check_attrs() = 0;
+   virtual void semant() = 0;
+   virtual std::map<Symbol, Feature> * get_method_table() = 0;
+   virtual SymbolTable<Symbol, Symbol> * get_object_table() = 0;
+
    tree_node *copy()		 { return copy_Class_(); }
    virtual Class_ copy_Class_() = 0;
 
@@ -41,12 +45,19 @@ public:
 #endif
 };
 
-
-// define simple phylum - Feature
 typedef class Feature_class *Feature;
 
 class Feature_class : public tree_node {
 public:
+   virtual int check_attrs() = 0;
+   virtual int get_environment() = 0;
+   virtual Symbol get_name() = 0;
+   virtual Symbol get_return_type() = 0;
+   virtual Symbol get_arg_type(int i) = 0;
+   virtual int get_arg_len() = 0;
+   virtual Formals get_formals() = 0;
+   virtual void semant() = 0;
+
    tree_node *copy()		 { return copy_Feature(); }
    virtual Feature copy_Feature() = 0;
 
@@ -55,13 +66,14 @@ public:
 #endif
 };
 
-
-// define simple phylum - Formal
 typedef class Formal_class *Formal;
 
 class Formal_class : public tree_node {
 public:
    tree_node *copy()		 { return copy_Formal(); }
+   virtual void semant() = 0;
+   virtual Symbol get_name() = 0;
+   virtual Symbol get_type_decl() = 0;
    virtual Formal copy_Formal() = 0;
 
 #ifdef Formal_EXTRAS
@@ -69,63 +81,49 @@ public:
 #endif
 };
 
-
-// define simple phylum - Expression
 typedef class Expression_class *Expression;
 
 class Expression_class : public tree_node {
 public:
    tree_node *copy()		 { return copy_Expression(); }
    virtual Expression copy_Expression() = 0;
+   virtual void semant() = 0;
 
 #ifdef Expression_EXTRAS
    Expression_EXTRAS
 #endif
 };
 
-
-// define simple phylum - Case
 typedef class Case_class *Case;
 
 class Case_class : public tree_node {
 public:
    tree_node *copy()		 { return copy_Case(); }
    virtual Case copy_Case() = 0;
+   virtual void semant() = 0;
+   virtual Expression get_expr() = 0;
+   virtual Symbol get_type_decl() = 0;
 
 #ifdef Case_EXTRAS
    Case_EXTRAS
 #endif
 };
 
-
-// define the class for phylum - LIST
-// define list phlyum - Classes
 typedef list_node<Class_> Classes_class;
 typedef Classes_class *Classes;
 
-
-// define list phlyum - Features
 typedef list_node<Feature> Features_class;
 typedef Features_class *Features;
 
-
-// define list phlyum - Formals
 typedef list_node<Formal> Formals_class;
 typedef Formals_class *Formals;
 
-
-// define list phlyum - Expressions
 typedef list_node<Expression> Expressions_class;
 typedef Expressions_class *Expressions;
 
-
-// define list phlyum - Cases
 typedef list_node<Case> Cases_class;
 typedef Cases_class *Cases;
 
-
-// define the class for constructors
-// define constructor - program
 class program_class : public Program_class {
 protected:
    Classes classes;
@@ -144,21 +142,50 @@ public:
 #endif
 };
 
-
-// define constructor - class_
 class class__class : public Class__class {
 protected:
    Symbol name;
    Symbol parent;
    Features features;
    Symbol filename;
+   bool marked;
+   SymbolTable<Symbol, Symbol> *object_table;
+   std::map<Symbol, Feature> *method_table;
+   std::list<Class_> *children;
 public:
    class__class(Symbol a1, Symbol a2, Features a3, Symbol a4) {
       name = a1;
       parent = a2;
       features = a3;
       filename = a4;
+      marked = false;
+      object_table = new SymbolTable<Symbol, Symbol>();
+      object_table->enterscope();
+      method_table = new std::map<Symbol, Feature>();
+      children = new std::list<Class_>();
    }
+   Symbol get_name() {
+     return name;
+   }
+   Symbol get_parent() {
+     return parent;
+   }
+   bool get_marked() {
+     return marked;
+   }
+   SymbolTable<Symbol, Symbol> * get_object_table() {
+     return object_table;
+   }
+   std::map<Symbol, Feature> * get_method_table() {
+     return method_table;
+   }
+   int check_cycle();
+   int check_attrs();
+   void semant();
+   Symbol get_attr(Symbol var);
+   Feature get_method(Symbol method);
+   int get_environment();
+   void add_child(Class_ class_);
    Class_ copy_Class_();
    void dump(ostream& stream, int n);
 
@@ -170,8 +197,6 @@ public:
 #endif
 };
 
-
-// define constructor - method
 class method_class : public Feature_class {
 protected:
    Symbol name;
@@ -185,7 +210,21 @@ public:
       return_type = a3;
       expr = a4;
    }
+   int check_attrs();
+   int get_environment();
+   Symbol get_name () {
+     return name;
+   }
+   Symbol get_return_type() {
+     return return_type;
+   }
+   Formals get_formals() {
+     return formals;
+   };
+   Symbol get_arg_type(int i);
+   int get_arg_len();
    Feature copy_Feature();
+   void semant();
    void dump(ostream& stream, int n);
 
 #ifdef Feature_SHARED_EXTRAS
@@ -196,8 +235,6 @@ public:
 #endif
 };
 
-
-// define constructor - attr
 class attr_class : public Feature_class {
 protected:
    Symbol name;
@@ -209,6 +246,24 @@ public:
       type_decl = a2;
       init = a3;
    }
+   int check_attrs();
+   int get_environment();
+   Symbol get_name () {
+     return name;
+   }
+   Symbol get_return_type() {
+     return NULL;
+   }
+   Symbol get_arg_type(int i) {
+     return NULL;
+   };
+   int get_arg_len() {
+     return 0;
+   };
+   Formals get_formals() {
+     return NULL;
+   };
+   void semant();
    Feature copy_Feature();
    void dump(ostream& stream, int n);
 
@@ -220,8 +275,6 @@ public:
 #endif
 };
 
-
-// define constructor - formal
 class formal_class : public Formal_class {
 protected:
    Symbol name;
@@ -230,6 +283,13 @@ public:
    formal_class(Symbol a1, Symbol a2) {
       name = a1;
       type_decl = a2;
+   }
+   void semant();
+   Symbol get_name() {
+     return name;
+   }
+   Symbol get_type_decl() {
+     return type_decl;
    }
    Formal copy_Formal();
    void dump(ostream& stream, int n);
@@ -242,8 +302,6 @@ public:
 #endif
 };
 
-
-// define constructor - branch
 class branch_class : public Case_class {
 protected:
    Symbol name;
@@ -255,6 +313,13 @@ public:
       type_decl = a2;
       expr = a3;
    }
+   void semant();
+   Symbol get_type_decl() {
+     return type_decl;
+   };
+   Expression get_expr() {
+     return expr;
+   };
    Case copy_Case();
    void dump(ostream& stream, int n);
 
@@ -266,8 +331,6 @@ public:
 #endif
 };
 
-
-// define constructor - assign
 class assign_class : public Expression_class {
 protected:
    Symbol name;
@@ -277,6 +340,7 @@ public:
       name = a1;
       expr = a2;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -288,8 +352,6 @@ public:
 #endif
 };
 
-
-// define constructor - static_dispatch
 class static_dispatch_class : public Expression_class {
 protected:
    Expression expr;
@@ -303,6 +365,7 @@ public:
       name = a3;
       actual = a4;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -314,8 +377,6 @@ public:
 #endif
 };
 
-
-// define constructor - dispatch
 class dispatch_class : public Expression_class {
 protected:
    Expression expr;
@@ -327,6 +388,7 @@ public:
       name = a2;
       actual = a3;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -338,8 +400,6 @@ public:
 #endif
 };
 
-
-// define constructor - cond
 class cond_class : public Expression_class {
 protected:
    Expression pred;
@@ -351,6 +411,7 @@ public:
       then_exp = a2;
       else_exp = a3;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -362,8 +423,6 @@ public:
 #endif
 };
 
-
-// define constructor - loop
 class loop_class : public Expression_class {
 protected:
    Expression pred;
@@ -373,6 +432,7 @@ public:
       pred = a1;
       body = a2;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -384,8 +444,6 @@ public:
 #endif
 };
 
-
-// define constructor - typcase
 class typcase_class : public Expression_class {
 protected:
    Expression expr;
@@ -395,6 +453,8 @@ public:
       expr = a1;
       cases = a2;
    }
+   int check_dups();
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -406,8 +466,6 @@ public:
 #endif
 };
 
-
-// define constructor - block
 class block_class : public Expression_class {
 protected:
    Expressions body;
@@ -415,6 +473,7 @@ public:
    block_class(Expressions a1) {
       body = a1;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -426,8 +485,6 @@ public:
 #endif
 };
 
-
-// define constructor - let
 class let_class : public Expression_class {
 protected:
    Symbol identifier;
@@ -441,6 +498,7 @@ public:
       init = a3;
       body = a4;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -452,8 +510,6 @@ public:
 #endif
 };
 
-
-// define constructor - plus
 class plus_class : public Expression_class {
 protected:
    Expression e1;
@@ -463,6 +519,7 @@ public:
       e1 = a1;
       e2 = a2;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -474,8 +531,6 @@ public:
 #endif
 };
 
-
-// define constructor - sub
 class sub_class : public Expression_class {
 protected:
    Expression e1;
@@ -485,6 +540,7 @@ public:
       e1 = a1;
       e2 = a2;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -496,8 +552,6 @@ public:
 #endif
 };
 
-
-// define constructor - mul
 class mul_class : public Expression_class {
 protected:
    Expression e1;
@@ -507,6 +561,7 @@ public:
       e1 = a1;
       e2 = a2;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -518,8 +573,6 @@ public:
 #endif
 };
 
-
-// define constructor - divide
 class divide_class : public Expression_class {
 protected:
    Expression e1;
@@ -529,6 +582,7 @@ public:
       e1 = a1;
       e2 = a2;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -540,8 +594,6 @@ public:
 #endif
 };
 
-
-// define constructor - neg
 class neg_class : public Expression_class {
 protected:
    Expression e1;
@@ -549,6 +601,7 @@ public:
    neg_class(Expression a1) {
       e1 = a1;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -560,8 +613,6 @@ public:
 #endif
 };
 
-
-// define constructor - lt
 class lt_class : public Expression_class {
 protected:
    Expression e1;
@@ -571,6 +622,7 @@ public:
       e1 = a1;
       e2 = a2;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -582,8 +634,6 @@ public:
 #endif
 };
 
-
-// define constructor - eq
 class eq_class : public Expression_class {
 protected:
    Expression e1;
@@ -593,6 +643,7 @@ public:
       e1 = a1;
       e2 = a2;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -604,8 +655,6 @@ public:
 #endif
 };
 
-
-// define constructor - leq
 class leq_class : public Expression_class {
 protected:
    Expression e1;
@@ -615,6 +664,7 @@ public:
       e1 = a1;
       e2 = a2;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -626,8 +676,6 @@ public:
 #endif
 };
 
-
-// define constructor - comp
 class comp_class : public Expression_class {
 protected:
    Expression e1;
@@ -635,6 +683,7 @@ public:
    comp_class(Expression a1) {
       e1 = a1;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -646,8 +695,6 @@ public:
 #endif
 };
 
-
-// define constructor - int_const
 class int_const_class : public Expression_class {
 protected:
    Symbol token;
@@ -655,6 +702,7 @@ public:
    int_const_class(Symbol a1) {
       token = a1;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -666,8 +714,6 @@ public:
 #endif
 };
 
-
-// define constructor - bool_const
 class bool_const_class : public Expression_class {
 protected:
    Boolean val;
@@ -675,6 +721,7 @@ public:
    bool_const_class(Boolean a1) {
       val = a1;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -686,8 +733,6 @@ public:
 #endif
 };
 
-
-// define constructor - string_const
 class string_const_class : public Expression_class {
 protected:
    Symbol token;
@@ -695,6 +740,7 @@ public:
    string_const_class(Symbol a1) {
       token = a1;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -706,8 +752,6 @@ public:
 #endif
 };
 
-
-// define constructor - new_
 class new__class : public Expression_class {
 protected:
    Symbol type_name;
@@ -715,6 +759,7 @@ public:
    new__class(Symbol a1) {
       type_name = a1;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -726,8 +771,6 @@ public:
 #endif
 };
 
-
-// define constructor - isvoid
 class isvoid_class : public Expression_class {
 protected:
    Expression e1;
@@ -735,6 +778,7 @@ public:
    isvoid_class(Expression a1) {
       e1 = a1;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -746,13 +790,12 @@ public:
 #endif
 };
 
-
-// define constructor - no_expr
 class no_expr_class : public Expression_class {
 protected:
 public:
    no_expr_class() {
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -764,8 +807,6 @@ public:
 #endif
 };
 
-
-// define constructor - object
 class object_class : public Expression_class {
 protected:
    Symbol name;
@@ -773,6 +814,7 @@ public:
    object_class(Symbol a1) {
       name = a1;
    }
+   void semant();
    Expression copy_Expression();
    void dump(ostream& stream, int n);
 
@@ -784,8 +826,6 @@ public:
 #endif
 };
 
-
-// define the prototypes of the interface
 Classes nil_Classes();
 Classes single_Classes(Class_);
 Classes append_Classes(Classes, Classes);
@@ -831,6 +871,5 @@ Expression new_(Symbol);
 Expression isvoid(Expression);
 Expression no_expr();
 Expression object(Symbol);
-
 
 #endif
